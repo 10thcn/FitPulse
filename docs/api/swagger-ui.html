@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitPulse API 文档（OpenAPI 草稿 v0.1）</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css" />
+  <style>
+    body { margin: 0; }
+    .fp-banner {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: #ff6b2c;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .fp-banner strong { font-size: 15px; }
+    .fp-banner a { color: #fff; text-decoration: underline; }
+    .fp-hint {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      margin: 12px 20px;
+      padding: 12px 16px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      color: #9a3412;
+      font-size: 13px;
+      line-height: 1.7;
+      display: none;
+    }
+    #swagger-ui { max-width: 1280px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="fp-banner">
+    <span><strong>FitPulse API</strong> · OpenAPI 3.0.3 草稿 v0.1 · 后端 / API 集成：徐心铭</span>
+    <span>契约文件：<a href="./openapi.yaml">openapi.yaml</a> · 设计说明：<a href="../FitPulse_API接口设计说明书.md">API 接口设计说明书</a></span>
+  </div>
+
+  <div id="fp-cors-hint" class="fp-hint">
+    <strong>无法加载 openapi.yaml？</strong>
+    本页面通过 <code>fetch</code> 读取契约文件，浏览器禁止 <code>file://</code> 页面发起该请求。
+    请在仓库根目录执行 <code>python -m http.server 8080</code>，然后访问
+    <code>http://localhost:8080/docs/api/swagger-ui.html</code>。
+  </div>
+
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function () {
+      window.ui = SwaggerUIBundle({
+        url: "./openapi.yaml",
+        dom_id: "#swagger-ui",
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        layout: "BaseLayout",
+        deepLinking: true,
+        docExpansion: "list",
+        filter: true,
+        persistAuthorization: true,
+        tryItOutEnabled: true,
+        validatorUrl: null, // 关闭在线 validator，离线可用且不上传契约
+        onComplete: function () {
+          document.getElementById("fp-cors-hint").style.display = "none";
+        },
+      });
+
+      // 兜底：契约加载失败（如 file:// 打开）时给出排查提示
+      setTimeout(function () {
+        if (!document.querySelector(".swagger-ui .info")) {
+          document.getElementById("fp-cors-hint").style.display = "block";
+        }
+      }, 4000);
+    };
+  </script>
+</body>
+</html>
