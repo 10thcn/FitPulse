@@ -93,6 +93,16 @@ docker compose exec backend python scripts/init_knowledge_base.py
 
 ---
 
+## 🤝 团队协作
+
+本项目采用 **Fork + PR** 协作模式：每位成员 Fork 主仓库，在自己的 Fork 中完成工作后发起 Pull Request，队长 Review 后合并。
+
+📋 [团队成员协作指南](CONTRIBUTING.md) | 🔗 [Fork 网络](https://github.com/power819/FitPulse/network/members)
+
+> 🏗️ **正在协作中**：当前处于原型设计+概要设计阶段，各成员正通过 Fork/PR 提交成果。
+
+---
+
 ## 👥 团队成员
 
 | 学号 | 姓名 | 角色 |
