@@ -249,6 +249,6 @@ classDiagram
 
 ## 附录：参考资料
 
-- 作业要求：**【作业要求链接】**
+- 作业要求：**【https://edu.cnblogs.com/campus/fzu/202601SofwareEngineering/homework/16773】**
 - 智能体平台参考：文心智能体平台、Kimi+、ChatGPT / GPTs、扣子、Dify、智能聊天机器人（开源案例）
 - 领域知识来源：运动解剖学 / 力量训练基础类公开资料（待补充具体书目）
