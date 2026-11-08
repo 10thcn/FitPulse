@@ -1,0 +1,2112 @@
+openapi: 3.0.3
+
+info:
+  title: FitPulse API
+  description: |
+    FitPulse 健身动作矫正 & 居家锻炼智能 Agent 的后端 REST API 定义（**草稿 v0.1**）。
+
+    本文档依据《FitPulse 系统设计说明书》§4「接口设计」与 §5「数据结构设计」编写，
+    并把表格中的接口落成可直接用于 Swagger UI / 代码生成 / 契约测试的 OpenAPI 描述。
+
+    ## 约定摘要
+    - 所有业务接口以 `/api` 为路径前缀，JSON 请求/响应统一 UTF-8。
+    - 除 `GET /api/health` 与认证接口外，均需要 `Authorization: Bearer <JWT>`。
+    - 除健康检查外，JSON 响应统一使用信封：`{ "code": 0, "message": "success", "data": ... }`。
+    - 列表接口统一分页：`data = { items, total, page, page_size }`。
+    - 对话与纠错等长耗时任务使用 SSE（`text/event-stream`）流式返回。
+    - 时间统一为 ISO 8601（如 `2026-11-08T17:30:00+08:00`），日期为 `YYYY-MM-DD`。
+
+    ## 草稿说明
+    标注「（草稿提案）」的接口/字段是对系统设计说明书的补齐（登录、刷新令牌、文件上传、
+    后台管理 REST 化、分页等），需在接口评审时确认。完整说明见
+    `docs/FitPulse_API接口设计说明书.md`。
+  version: 0.1.0
+  contact:
+    name: FitPulse 团队 · 徐心铭（后端/API 集成）
+  license:
+    name: 课程作业，仅供学习交流
+    url: https://github.com/power819/FitPulse
+
+servers:
+  - url: http://localhost:8000
+    description: 本地开发（uvicorn 直连后端）
+  - url: http://localhost
+    description: Docker Compose（Nginx 反向代理，/api 前缀路由到后端）
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: 健康检查
+    description: 探活与监控接口
+  - name: 认证
+    description: 登录、刷新令牌（草稿提案）
+  - name: 文件上传
+    description: 聊天图片 / 头像上传（草稿提案）
+  - name: 对话
+    description: 会话创建、消息发送（SSE）、会话历史
+  - name: 训练计划
+    description: 计划生成（SSE）、当前计划、打卡、历史
+  - name: 动作纠错
+    description: 上传动作照片纠错（SSE）、纠错历史与详情
+  - name: 用户
+    description: 用户档案与训练统计
+  - name: 动作库
+    description: 标准动作列表与详情
+  - name: 后台管理
+    description: 知识库、用户、系统概览、反馈管理（需管理员 JWT）
+
+paths:
+  /api/health:
+    get:
+      tags: [健康检查]
+      operationId: getHealth
+      summary: 健康检查
+      description: 供 Docker healthcheck、Nginx 探活与监控使用。**不套用统一响应信封**，直接返回健康状态。
+      security: []
+      responses:
+        '200':
+          description: 服务健康
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                version: 0.1.0
+                timestamp: '2026-11-08T17:30:00+08:00'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/auth/login:
+    post:
+      tags: [认证]
+      operationId: login
+      summary: 登录（草稿提案）
+      description: |
+        使用账号密码换取 JWT。系统设计说明书提到「API 网关（Nginx + JWT）」，但未定义登录接口，本草稿补齐。
+        账号体系（学号 / 邮箱 / 手机号）待产品经理确认。
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: '102401531'
+              password: 'FitPulse@2026'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TokenData'
+              example:
+                code: 0
+                message: success
+                data:
+                  access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  token_type: Bearer
+                  expires_in: 7200
+                  refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/refresh:
+    post:
+      tags: [认证]
+      operationId: refreshToken
+      summary: 刷新访问令牌（草稿提案）
+      description: 使用 `refresh_token` 换取新的访问令牌。访问令牌过期（40101）时由前端静默调用。
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TokenData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/uploads:
+    post:
+      tags: [文件上传]
+      operationId: uploadFile
+      summary: 上传文件（草稿提案）
+      description: |
+        上传图片到 MinIO 并返回可访问 URL，供 `/api/chat` 的 `images[]` 与用户头像使用。
+        系统设计说明书只定义了纠错图片的 multipart 上传，未定义聊天图片上传，本草稿补齐。
+        限制：JPG / PNG / WebP，单文件 ≤ 10MB。
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 图片文件，JPG / PNG / WebP，≤ 10MB
+                purpose:
+                  type: string
+                  enum: [chat_image, avatar]
+                  default: chat_image
+                  description: 用途，决定存储目录与访问策略
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UploadedFile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/chat:
+    post:
+      tags: [对话]
+      operationId: sendChatMessage
+      summary: 发送消息（SSE 流式响应）
+      description: |
+        发送一条用户消息，后端编排（意图识别 → RAG / 工具调用 → LLM）后以 SSE 流式返回。
+
+        **SSE 协议**：每个事件的 `data` 是一行 `StreamEvent` JSON，事件之间以空行分隔：
+
+        ```
+        data: {"type":"thinking","content":"正在分析你的需求..."}
+
+        data: {"type":"tool_call","tool":"generate_plan","status":"running"}
+
+        data: {"type":"text","content":"好的！根据你的情况（新手、宿舍、瑜伽垫+弹力带），"}
+
+        data: {"type":"done"}
+        ```
+
+        前端用 `fetch` + `ReadableStream` 读取（原生 `EventSource` 不支持 POST）。
+        `text` 事件为增量片段，按到达顺序拼接。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            example:
+              session_id: 6f1c2a8e-6b1a-4e8e-9d2f-1a2b3c4d5e6f
+              message: 我想练胸，给我一个 20 分钟的居家计划
+              images: []
+      responses:
+        '200':
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: SSE 事件流，每个事件 `data` 为 StreamEvent JSON；事件类型见 StreamEvent。
+              example: |
+                data: {"type":"thinking","content":"正在分析你的需求..."}
+
+                data: {"type":"tool_call","tool":"generate_plan","status":"running"}
+
+                data: {"type":"text","content":"好的！根据你的情况（新手、宿舍、瑜伽垫+弹力带），"}
+
+                data: {"type":"text","content":"我为你设计了一份 20 分钟的居家胸部训练计划..."}
+
+                data: {"type":"done"}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/sessions:
+    post:
+      tags: [对话]
+      operationId: createSession
+      summary: 创建新会话
+      description: 创建一个空的对话会话，返回 `session_id` 供 `/api/chat` 使用。
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 60
+                  description: 可选的会话标题；不传则由首条消息自动生成
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/sessions/{session_id}:
+    get:
+      tags: [对话]
+      operationId: getSession
+      summary: 获取会话历史
+      description: 返回会话元信息与全部消息（按时间升序），用于前端刷新后恢复对话。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SessionDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [对话]
+      operationId: deleteSession
+      summary: 删除会话
+      description: 逻辑删除会话及其消息（同时清理会话向量上下文缓存）。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SuccessData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/plans/current:
+    get:
+      tags: [训练计划]
+      operationId: getCurrentPlan
+      summary: 获取当前周训练计划
+      description: 返回 `status=active` 且覆盖当前日期的计划；尚未生成计划时返回 404（code=40400）。
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TrainingPlan'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/plans/generate:
+    post:
+      tags: [训练计划]
+      operationId: generatePlan
+      summary: 生成训练计划（SSE 流式响应）
+      description: |
+        根据用户档案（水平 / 目标 / 器械 / 每周天数）生成结构化周计划，以 SSE 返回生成过程。
+
+        事件序列：`thinking` → `tool_call`（tool=generate_plan）→ 若干 `text` → `plan`（携带完整
+        TrainingPlan）→ `done`。生成成功后计划自动落库并成为当前计划。
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanGenerateRequest'
+      responses:
+        '200':
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: SSE 事件流，`plan` 事件的 data 为 TrainingPlan。
+              example: |
+                data: {"type":"thinking","content":"正在结合你的档案与知识库编排计划..."}
+
+                data: {"type":"tool_call","tool":"generate_plan","status":"running"}
+
+                data: {"type":"text","content":"已按每周 3 天全身训练为你编排..."}
+
+                data: {"type":"plan","data":{"plan_id":"9b2f...","week_number":1,"days":[]}}
+
+                data: {"type":"done"}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/plans/{plan_id}/days/{day_index}/exercises/{ex_idx}:
+    put:
+      tags: [训练计划]
+      operationId: markExerciseDone
+      summary: 标记计划动作完成状态
+      description: 对某计划某训练日的某个动作打卡/取消打卡，用于训练记录与进度统计。
+      parameters:
+        - $ref: '#/components/parameters/PlanId'
+        - $ref: '#/components/parameters/DayIndex'
+        - $ref: '#/components/parameters/ExerciseIndex'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkDoneRequest'
+            example:
+              done: true
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SuccessData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/plans/history:
+    get:
+      tags: [训练计划]
+      operationId: getPlanHistory
+      summary: 历史计划列表
+      description: 分页返回用户的历史训练计划（按开始日期倒序）。
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PageMeta'
+                          - type: object
+                            properties:
+                              items:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/TrainingPlan'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/correct:
+    post:
+      tags: [动作纠错]
+      operationId: correctPosture
+      summary: 上传动作照片纠错（SSE 流式响应）
+      description: |
+        上传动作照片（+ 可选文字描述），后端调用 Claude 视觉模型 + RAG 知识检索识别姿势偏差，
+        以 SSE 流式返回分析过程，最终 `correction` 事件携带完整纠错报告。
+
+        事件序列：`thinking` → `tool_call`（tool=correct_posture）→ 若干 `text` → `correction` →
+        `done`。若描述/图片提示疼痛等风险信号，报告中的 `safety_note` 会给出停止训练并就医的建议。
+
+        注意：SSE 由 `fetch` + `FormData` 发起，不能使用 `EventSource`。
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: 动作照片，JPG / PNG / WebP，≤ 10MB
+                description:
+                  type: string
+                  maxLength: 500
+                  description: 用户文字描述，如「做俯卧撑感觉腰酸」
+      responses:
+        '200':
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: SSE 事件流，`correction` 事件的 data 为 CorrectionReport。
+              example: |
+                data: {"type":"thinking","content":"正在识别动作并检索标准动作知识..."}
+
+                data: {"type":"tool_call","tool":"correct_posture","status":"running"}
+
+                data: {"type":"text","content":"识别为俯卧撑，检测到塌腰..."}
+
+                data: {"type":"correction","data":{"correction_id":"c7d8...","detected_exercise":"俯卧撑","issues":[]}}
+
+                data: {"type":"done"}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/correct/history:
+    get:
+      tags: [动作纠错]
+      operationId: getCorrectionHistory
+      summary: 纠错历史列表
+      description: |
+        分页返回用户的纠错记录（按创建时间倒序）。
+        **路由优先级**：后端需先注册 `/api/correct/history`，再注册 `/api/correct/{correction_id}`，
+        否则 `history` 会被当作路径参数。
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PageMeta'
+                          - type: object
+                            properties:
+                              items:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/CorrectionReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/correct/{correction_id}:
+    get:
+      tags: [动作纠错]
+      operationId: getCorrection
+      summary: 纠错详情
+      parameters:
+        - name: correction_id
+          in: path
+          required: true
+          description: 纠错记录 ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CorrectionReport'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/user/profile:
+    get:
+      tags: [用户]
+      operationId: getUserProfile
+      summary: 获取当前用户档案
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags: [用户]
+      operationId: updateUserProfile
+      summary: 更新当前用户档案
+      description: 全量更新用户档案（除头像外的业务字段均必填），用于「个人中心」表单保存。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileInput'
+            example:
+              nickname: 小林
+              fitness_level: beginner
+              goal: build_muscle
+              equipment: [瑜伽垫, 弹力带]
+              weekly_days: 3
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/user/stats:
+    get:
+      tags: [用户]
+      operationId: getUserStats
+      summary: 训练统计
+      description: 返回个人中心展示的累计训练次数、时长、连续打卡天数与本周完成情况。
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/exercises:
+    get:
+      tags: [动作库]
+      operationId: listExercises
+      summary: 动作列表
+      description: 分页查询标准动作库，可按分类、难度、关键词筛选，供「动作查询」与计划展示使用。
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: 动作分类
+          schema:
+            type: string
+            enum: [胸, 背, 腿, 肩, 核心, 全身]
+        - name: difficulty
+          in: query
+          required: false
+          description: 难度
+          schema:
+            type: string
+            enum: [beginner, intermediate, advanced]
+        - name: search
+          in: query
+          required: false
+          description: 按动作名称/标签模糊搜索
+          schema:
+            type: string
+            maxLength: 50
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PageMeta'
+                          - type: object
+                            properties:
+                              items:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/Exercise'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/exercises/{exercise_id}:
+    get:
+      tags: [动作库]
+      operationId: getExercise
+      summary: 动作详情
+      description: 返回动作标准要领、目标肌群、配图、常见错误与知识出处。
+      parameters:
+        - name: exercise_id
+          in: path
+          required: true
+          description: 动作 ID
+          schema:
+            type: string
+        - name: include_knowledge
+          in: query
+          required: false
+          description: 是否附带关联知识片段（RAG 命中的标准动作/肌肉发力/错误姿势条目）
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Exercise'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/knowledge:
+    get:
+      tags: [后台管理]
+      operationId: listKnowledgeChunks
+      summary: 知识库条目列表
+      description: 分页查询知识库条目，供「后台-知识库」页面列表展示与检索。
+      parameters:
+        - name: module
+          in: query
+          required: false
+          description: 知识模块
+          schema:
+            type: string
+            enum: [standard_action, muscle_engagement, posture_hazard]
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 50
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PageMeta'
+                          - type: object
+                            properties:
+                              items:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/KnowledgeChunk'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [后台管理]
+      operationId: createKnowledgeChunk
+      summary: 新增知识条目
+      description: 新增一条知识库条目；入库后由 RAG 流水线异步生成向量并写入 Chroma。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeChunkInput'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/KnowledgeChunk'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/admin/knowledge/{chunk_id}:
+    get:
+      tags: [后台管理]
+      operationId: getKnowledgeChunk
+      summary: 知识条目详情
+      parameters:
+        - $ref: '#/components/parameters/ChunkId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/KnowledgeChunk'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags: [后台管理]
+      operationId: updateKnowledgeChunk
+      summary: 更新知识条目
+      description: 全量更新条目内容；内容变化后触发重新向量化（删除旧向量 → 写入新向量）。
+      parameters:
+        - $ref: '#/components/parameters/ChunkId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeChunkInput'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/KnowledgeChunk'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags: [后台管理]
+      operationId: deleteKnowledgeChunk
+      summary: 删除知识条目
+      description: 删除 MySQL 条目并同步删除 Chroma 中对应向量。
+      parameters:
+        - $ref: '#/components/parameters/ChunkId'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SuccessData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/admin/users:
+    get:
+      tags: [后台管理]
+      operationId: listAdminUsers
+      summary: 用户列表
+      description: 分页查询平台用户，支持按昵称模糊搜索。
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 50
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PageMeta'
+                          - type: object
+                            properties:
+                              items:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/AdminUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/dashboard:
+    get:
+      tags: [后台管理]
+      operationId: getDashboard
+      summary: 系统概览
+      description: 返回后台首页统计卡片数据（用户、计划、纠错、知识库、LLM 调用质量）。
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/feedbacks:
+    get:
+      tags: [后台管理]
+      operationId: listFeedbacks
+      summary: 反馈列表
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, processing, resolved, rejected]
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/PageMeta'
+                          - type: object
+                            properties:
+                              items:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/Feedback'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/admin/feedbacks/{feedback_id}:
+    put:
+      tags: [后台管理]
+      operationId: updateFeedback
+      summary: 处理反馈
+      description: 更新反馈状态并填写管理员回复。
+      parameters:
+        - name: feedback_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackUpdate'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Feedback'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        登录后获得的访问令牌，放在请求头 `Authorization: Bearer <access_token>`。
+        后台管理接口要求令牌携带 `role=admin` 声明。
+
+  parameters:
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      description: 会话 ID
+      schema:
+        type: string
+        format: uuid
+    PlanId:
+      name: plan_id
+      in: path
+      required: true
+      description: 训练计划 ID
+      schema:
+        type: string
+        format: uuid
+    DayIndex:
+      name: day_index
+      in: path
+      required: true
+      description: 训练日序号（1–7）
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 7
+    ExerciseIndex:
+      name: ex_idx
+      in: path
+      required: true
+      description: 动作在当日计划中的下标（从 0 开始，对应 sort_order）
+      schema:
+        type: integer
+        minimum: 0
+    ChunkId:
+      name: chunk_id
+      in: path
+      required: true
+      description: 知识条目 ID
+      schema:
+        type: string
+        format: uuid
+    Page:
+      name: page
+      in: query
+      required: false
+      description: 页码，从 1 开始
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Size:
+      name: size
+      in: query
+      required: false
+      description: 每页条数（1–50）
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 10
+
+  responses:
+    BadRequest:
+      description: 参数校验失败（HTTP 400，业务码 40001）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40001
+            message: '参数校验失败：缺少必填字段 message'
+            data: null
+    Unauthorized:
+      description: 未登录或令牌无效/过期（HTTP 401，业务码 40100 / 40101）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40101
+            message: 登录已过期，请重新登录
+            data: null
+    Forbidden:
+      description: 无权限（HTTP 403，业务码 40300）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40300
+            message: 需要管理员权限
+            data: null
+    NotFound:
+      description: 资源不存在（HTTP 404，业务码 40400）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40400
+            message: 资源不存在
+            data: null
+    PayloadTooLarge:
+      description: 文件过大或格式不支持（HTTP 413，业务码 50003）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 50003
+            message: '图片上传失败：仅支持 JPG/PNG/WebP，且不超过 10MB'
+            data: null
+    TooManyRequests:
+      description: 请求过于频繁（HTTP 429，业务码 42900），带 `Retry-After` 响应头
+      headers:
+        Retry-After:
+          description: 建议重试等待秒数
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 42900
+            message: 操作太频繁，请稍等片刻
+            data: null
+    InternalError:
+      description: 服务器内部错误（HTTP 500，业务码 50000）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 50000
+            message: 系统异常，请稍后重试
+            data: null
+    ServiceUnavailable:
+      description: 依赖服务不可用（HTTP 503，业务码 50001 / 50002：LLM 或向量库异常）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 50001
+            message: 智能教练暂时繁忙，请稍后再试
+            data: null
+
+  schemas:
+    ApiResponse:
+      type: object
+      description: 统一成功响应信封
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: 业务错误码，0 表示成功
+          example: 0
+        message:
+          type: string
+          description: 提示信息
+          example: success
+        data:
+          type: object
+          nullable: true
+          description: 业务数据（对象）；成功时为各接口定义的数据结构，失败时为 null
+
+    ErrorResponse:
+      type: object
+      description: 统一错误响应信封
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: 业务错误码（见接口文档错误码表）
+          example: 40001
+        message:
+          type: string
+          description: 可直接展示给用户的错误信息
+          example: 参数校验失败
+        data:
+          type: object
+          nullable: true
+          description: 错误详情（通常为 null）
+
+    SuccessData:
+      type: object
+      description: 仅表示操作结果的简单数据结构
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    PageMeta:
+      type: object
+      description: 分页元信息（与 items 组合使用）
+      required: [total, page, page_size]
+      properties:
+        total:
+          type: integer
+          description: 总条数
+          example: 120
+        page:
+          type: integer
+          description: 当前页码
+          example: 1
+        page_size:
+          type: integer
+          description: 每页条数
+          example: 10
+
+    HealthResponse:
+      type: object
+      description: 健康检查响应（不套用响应信封）
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, down]
+          example: ok
+        version:
+          type: string
+          example: 0.1.0
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-11-08T17:30:00+08:00'
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          description: 登录账号，暂定为学号（待产品确认）
+          example: '102401531'
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 64
+          example: 'FitPulse@2026'
+
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+          description: 登录时下发的刷新令牌
+
+    TokenData:
+      type: object
+      required: [access_token, token_type, expires_in]
+      properties:
+        access_token:
+          type: string
+          description: JWT 访问令牌
+        token_type:
+          type: string
+          enum: [Bearer]
+          example: Bearer
+        expires_in:
+          type: integer
+          description: 访问令牌有效期（秒）
+          example: 7200
+        refresh_token:
+          type: string
+          description: 刷新令牌（有效期 7 天）
+        user_id:
+          type: string
+          format: uuid
+          description: 当前用户 ID，便于前端首次登录后直接初始化
+
+    UploadedFile:
+      type: object
+      required: [file_id, url, size, content_type]
+      properties:
+        file_id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+          description: MinIO 上可访问的文件 URL（可能为预签名地址）
+          example: http://localhost:9000/fitpulse/chat/2026/11/08/abc.jpg
+        size:
+          type: integer
+          format: int64
+          description: 文件字节数
+          example: 204800
+        content_type:
+          type: string
+          example: image/jpeg
+        created_at:
+          type: string
+          format: date-time
+
+    ChatRequest:
+      type: object
+      required: [session_id, message]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: 会话 ID，由 `POST /api/sessions` 创建
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: 用户消息文本
+          example: 我想练胸，给我一个计划
+        images:
+          type: array
+          maxItems: 3
+          description: 图片 URL 列表，先通过 `POST /api/uploads` 上传获得
+          items:
+            type: string
+            format: uri
+
+    StreamEvent:
+      type: object
+      description: SSE 事件负载（`data:` 行内的 JSON）
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [thinking, tool_call, text, plan, correction, done, error]
+          description: |
+            - `thinking`：思考/进度提示（content）
+            - `tool_call`：工具调用状态（tool + status）
+            - `text`：增量文本片段（content，按序拼接）
+            - `plan`：完整训练计划（data = TrainingPlan）
+            - `correction`：完整纠错报告（data = CorrectionReport）
+            - `done`：流正常结束
+            - `error`：流内错误（error）
+        content:
+          type: string
+          description: type=thinking/text 时的事件内容
+        tool:
+          type: string
+          description: type=tool_call 时的工具名
+          enum: [query_exercise, generate_plan, correct_posture]
+        status:
+          type: string
+          enum: [running, succeeded, failed]
+          description: type=tool_call 时的执行状态
+        data:
+          type: object
+          nullable: true
+          description: type=plan/correction 时的结构化结果
+        error:
+          type: object
+          nullable: true
+          description: type=error 时的错误信息
+          properties:
+            code:
+              type: integer
+              example: 50001
+            message:
+              type: string
+              example: LLM 调用失败
+
+    ChatMessage:
+      type: object
+      required: [message_id, role, content, created_at]
+      properties:
+        message_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [user, assistant, tool, system]
+        content:
+          type: string
+          description: 消息文本；assistant 消息为完整回答（非增量）
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: 消息附带的图片 URL
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCall'
+          description: assistant 消息触发的工具调用记录
+        created_at:
+          type: string
+          format: date-time
+
+    ToolCall:
+      type: object
+      required: [tool_name, status]
+      properties:
+        tool_name:
+          type: string
+          enum: [query_exercise, generate_plan, correct_posture]
+        arguments:
+          type: object
+          additionalProperties: true
+          description: 工具入参
+        result:
+          type: string
+          nullable: true
+          description: 工具返回结果摘要（JSON 字符串）
+        status:
+          type: string
+          enum: [running, succeeded, failed]
+
+    Session:
+      type: object
+      required: [session_id, created_at, updated_at]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+          description: 会话标题（由首条消息自动生成）
+        message_count:
+          type: integer
+          minimum: 0
+          description: 消息条数
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SessionDetail:
+      allOf:
+        - $ref: '#/components/schemas/Session'
+        - type: object
+          properties:
+            messages:
+              type: array
+              description: 会话消息，按创建时间升序
+              items:
+                $ref: '#/components/schemas/ChatMessage'
+
+    UserProfile:
+      type: object
+      required:
+        [user_id, nickname, fitness_level, goal, equipment, weekly_days, created_at, updated_at]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          readOnly: true
+        nickname:
+          type: string
+          minLength: 1
+          maxLength: 30
+          example: 小林
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+        fitness_level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+          description: 健身水平
+        goal:
+          type: string
+          enum: [lose_fat, build_muscle, improve_posture, general]
+          description: 训练目标
+        equipment:
+          type: array
+          description: 可用器械
+          items:
+            type: string
+          example: [瑜伽垫, 弹力带]
+        weekly_days:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: 每周可训练天数
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+
+    UserProfileInput:
+      type: object
+      description: 用户档案更新请求体
+      required: [nickname, fitness_level, goal, equipment, weekly_days]
+      properties:
+        nickname:
+          type: string
+          minLength: 1
+          maxLength: 30
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+        fitness_level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        goal:
+          type: string
+          enum: [lose_fat, build_muscle, improve_posture, general]
+        equipment:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        weekly_days:
+          type: integer
+          minimum: 1
+          maximum: 7
+
+    UserStats:
+      type: object
+      description: 训练统计（个人中心）
+      required: [total_workouts, total_minutes, current_streak_days, weekly]
+      properties:
+        total_workouts:
+          type: integer
+          minimum: 0
+          description: 累计完成训练次数（按训练日计）
+          example: 18
+        total_minutes:
+          type: integer
+          minimum: 0
+          description: 累计训练时长（分钟）
+          example: 460
+        current_streak_days:
+          type: integer
+          minimum: 0
+          description: 当前连续打卡天数
+          example: 6
+        weekly:
+          type: array
+          description: 最近 7 天完成情况
+          items:
+            $ref: '#/components/schemas/WeeklyStat'
+
+    WeeklyStat:
+      type: object
+      required: [date, completed_exercises, total_exercises]
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-11-08'
+        completed_exercises:
+          type: integer
+          minimum: 0
+          example: 4
+        total_exercises:
+          type: integer
+          minimum: 0
+          example: 5
+
+    Exercise:
+      type: object
+      required:
+        [exercise_id, name, category, target_muscles, difficulty, instructions, source]
+      properties:
+        exercise_id:
+          type: string
+        name:
+          type: string
+          example: 俯卧撑
+        category:
+          type: string
+          enum: [胸, 背, 腿, 肩, 核心, 全身]
+        target_muscles:
+          type: array
+          items:
+            type: string
+          example: [胸大肌, 肱三头肌]
+        synergists:
+          type: array
+          items:
+            type: string
+          example: [三角肌前束, 核心]
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        equipment_needed:
+          type: string
+          description: 所需器械；无器械时为「无器械」
+          example: 瑜伽垫
+        instructions:
+          type: string
+          description: 动作要领（Markdown）
+        breathing:
+          type: string
+          description: 呼吸方法
+          example: 下放吸气，推起呼气
+        tempo:
+          type: string
+          description: 节奏，如 2-1-2（下放-停顿-推起，单位秒）
+          example: 2-1-2
+        image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+        common_errors:
+          type: array
+          items:
+            type: string
+          example: [塌腰, 耸肩, 手肘外展过大]
+        source:
+          type: string
+          description: 知识出处
+          example: 《运动解剖学》第5章·上肢训练
+
+    PlanExercise:
+      type: object
+      required: [id, exercise_id, exercise_name, sets, reps, rest_seconds, done, sort_order]
+      properties:
+        id:
+          type: string
+          description: 计划动作条目 ID
+        exercise_id:
+          type: string
+          description: 关联动作 ID
+        exercise_name:
+          type: string
+          description: 动作名称（冗余字段，减少查询）
+        sets:
+          type: integer
+          minimum: 1
+          example: 3
+        reps:
+          type: integer
+          minimum: 1
+          example: 12
+        rest_seconds:
+          type: integer
+          minimum: 0
+          example: 60
+        notes:
+          type: string
+          nullable: true
+          description: 教练备注
+        done:
+          type: boolean
+          example: false
+        sort_order:
+          type: integer
+          minimum: 0
+
+    PlanDay:
+      type: object
+      required: [day_id, day_index, focus_area, estimated_minutes, completed, exercises]
+      properties:
+        day_id:
+          type: string
+          format: uuid
+        day_index:
+          type: integer
+          minimum: 1
+          maximum: 7
+        focus_area:
+          type: string
+          example: 胸部+三头
+        estimated_minutes:
+          type: integer
+          minimum: 1
+          example: 20
+        completed:
+          type: boolean
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanExercise'
+
+    TrainingPlan:
+      type: object
+      required:
+        [plan_id, user_id, week_number, start_date, end_date, status, explanation, days]
+      properties:
+        plan_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        week_number:
+          type: integer
+          minimum: 1
+          description: 第几周
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [active, completed, abandoned]
+        explanation:
+          type: string
+          description: 计划选择理由说明
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanDay'
+        created_at:
+          type: string
+          format: date-time
+
+    CorrectionIssue:
+      type: object
+      required: [issue_id, body_part, problem_description, correction_advice, severity]
+      properties:
+        issue_id:
+          type: string
+        body_part:
+          type: string
+          description: 问题部位
+          example: 腰部
+        problem_description:
+          type: string
+          description: 问题描述
+          example: 核心未收紧导致塌腰
+        correction_advice:
+          type: string
+          description: 纠正建议
+          example: 收紧腹部与臀部，保持头-背-髋一条直线
+        reference_image_url:
+          type: string
+          format: uri
+          nullable: true
+          description: 纠正参考图
+        severity:
+          type: string
+          enum: [mild, moderate, severe]
+
+    CorrectionReport:
+      type: object
+      required:
+        [correction_id, user_id, image_url, detected_exercise, overall_assessment, issues, created_at]
+      properties:
+        correction_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        image_url:
+          type: string
+          format: uri
+        user_description:
+          type: string
+          nullable: true
+        detected_exercise:
+          type: string
+          description: 识别出的动作名称
+          example: 俯卧撑
+        overall_assessment:
+          type: string
+          description: 整体评价
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorrectionIssue'
+        safety_note:
+          type: string
+          nullable: true
+          description: 安全提示（出现疼痛等风险信号时的就医建议）
+        created_at:
+          type: string
+          format: date-time
+
+    MarkDoneRequest:
+      type: object
+      required: [done]
+      properties:
+        done:
+          type: boolean
+
+    PlanGenerateRequest:
+      type: object
+      description: 生成训练计划请求体；可省略，省略时使用当前用户档案
+      properties:
+        user_profile:
+          type: object
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/UserProfileInput'
+          description: 可选，临时覆盖当前用户档案（如预览不同参数下的计划）
+
+    KnowledgeChunk:
+      type: object
+      required: [chunk_id, module, content, tags, source, created_at]
+      properties:
+        chunk_id:
+          type: string
+          format: uuid
+        module:
+          type: string
+          enum: [standard_action, muscle_engagement, posture_hazard]
+          description: 知识模块（标准动作 / 肌肉发力 / 错误姿势危害）
+        exercise_id:
+          type: string
+          nullable: true
+          description: 关联动作 ID，可为空
+        exercise_name:
+          type: string
+          nullable: true
+        content:
+          type: string
+          description: 知识内容（Markdown）
+        tags:
+          type: array
+          items:
+            type: string
+          example: [深蹲, 下肢, 臀腿, 新手]
+        source:
+          type: string
+          description: 出处
+          example: 《运动解剖学》第5章·下肢训练
+        created_at:
+          type: string
+          format: date-time
+
+    KnowledgeChunkInput:
+      type: object
+      required: [module, content, tags, source]
+      properties:
+        module:
+          type: string
+          enum: [standard_action, muscle_engagement, posture_hazard]
+        exercise_id:
+          type: string
+          nullable: true
+        exercise_name:
+          type: string
+          nullable: true
+        content:
+          type: string
+          minLength: 1
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        source:
+          type: string
+          minLength: 1
+
+    AdminUser:
+      type: object
+      required: [user_id, nickname, fitness_level, goal, weekly_days, created_at]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        nickname:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+        fitness_level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        goal:
+          type: string
+          enum: [lose_fat, build_muscle, improve_posture, general]
+        weekly_days:
+          type: integer
+          minimum: 1
+          maximum: 7
+        created_at:
+          type: string
+          format: date-time
+        last_active_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    DashboardStats:
+      type: object
+      required:
+        [total_users, new_users_7d, total_plans, total_corrections, total_knowledge_chunks, generated_at]
+      properties:
+        total_users:
+          type: integer
+          minimum: 0
+        new_users_7d:
+          type: integer
+          minimum: 0
+        total_plans:
+          type: integer
+          minimum: 0
+        total_corrections:
+          type: integer
+          minimum: 0
+        total_knowledge_chunks:
+          type: integer
+          minimum: 0
+        knowledge_by_module:
+          $ref: '#/components/schemas/KnowledgeCountByModule'
+        llm_success_rate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: LLM 调用成功率（近 24 小时）
+        avg_response_ms:
+          type: integer
+          minimum: 0
+          description: 平均响应时间（毫秒，近 24 小时）
+        generated_at:
+          type: string
+          format: date-time
+
+    KnowledgeCountByModule:
+      type: object
+      properties:
+        standard_action:
+          type: integer
+          minimum: 0
+        muscle_engagement:
+          type: integer
+          minimum: 0
+        posture_hazard:
+          type: integer
+          minimum: 0
+
+    Feedback:
+      type: object
+      required: [feedback_id, user_id, type, content, status, created_at, updated_at]
+      properties:
+        feedback_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [bug, suggestion, other]
+        content:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, resolved, rejected]
+        admin_reply:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FeedbackUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, processing, resolved, rejected]
+        admin_reply:
+          type: string
+          maxLength: 1000
