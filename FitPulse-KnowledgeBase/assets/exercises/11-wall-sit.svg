@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">靠墙静蹲标准动作示意</title>
+  <desc id="desc">双栏侧面示意图：左侧为背贴墙站立起始位，右侧为沿墙下滑至膝盖约九十度的保持位；标注背贴墙、大腿接近平行、膝盖对脚尖和全脚掌踩稳。</desc>
+  <defs>
+    <style>
+      .bg{fill:#F7F3EA}
+      .card{fill:#FFFDF8;stroke:#D9D2C5;stroke-width:2}
+      .title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:40px;font-weight:800;fill:#FFFDF8}
+      .kicker{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;fill:#E9C46A}
+      .meta{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:17px;font-weight:600;fill:#FFFDF8}
+      .meta2{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;fill:#E9C46A}
+      .card-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:24px;font-weight:800;fill:#12303B}
+      .sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#7A7062}
+      .label{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:18px;font-weight:600;fill:#12303B}
+      .small{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .cue-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:19px;font-weight:700;fill:#12303B}
+      .cue-sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .num{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:16px;font-weight:800;fill:#FFFDF8}
+      .footer{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:13px;fill:#8A8173}
+      .ink{fill:none;stroke:#12303B;stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
+      .ink2{fill:none;stroke:#12303B;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+      .back{fill:none;stroke:#12303B;stroke-width:13;stroke-linecap:round;stroke-linejoin:round;opacity:.25}
+      .head{fill:#12303B}
+      .muscle{fill:#2A9D8F;opacity:.20}
+      .ground{stroke:#B9AE9C;stroke-width:4;stroke-linecap:round}
+      .accent{fill:none;stroke:#E76F51;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .hairline{stroke:#E7E0D2;stroke-width:1.5}
+      .wall{stroke:#B9AE9C;stroke-width:9;stroke-linecap:round}
+      .wall-tick{stroke:#D9D2C5;stroke-width:4;stroke-linecap:round}
+      .line-dash{stroke:#2A9D8F;stroke-width:3;stroke-dasharray:8 8;opacity:.9}
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#E76F51"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="820"/>
+  <rect width="1200" height="120" fill="#12303B"/>
+  <rect width="10" height="120" fill="#E76F51"/>
+  <text x="48" y="42" class="kicker">FITPULSE · STANDARD MOVEMENT LIBRARY</text>
+  <text x="48" y="90" class="title">11　靠墙静蹲</text>
+  <text x="1152" y="58" text-anchor="end" class="meta">EX-011 · 入门 · 无器械</text>
+  <text x="1152" y="88" text-anchor="end" class="meta2">下肢 · 蹲（等长） · 侧面视角</text>
+
+  <rect class="card" x="48" y="150" width="536" height="500" rx="24"/>
+  <rect class="card" x="616" y="150" width="536" height="500" rx="24"/>
+  <text x="80" y="196" class="card-title">起始位</text>
+  <text x="552" y="196" text-anchor="end" class="sub">背贴墙，脚向前迈</text>
+  <text x="648" y="196" class="card-title">保持位</text>
+  <text x="1120" y="196" text-anchor="end" class="sub">膝盖约 90°，背贴墙</text>
+  <line x1="80" y1="216" x2="552" y2="216" class="hairline"/>
+  <line x1="648" y1="216" x2="1120" y2="216" class="hairline"/>
+  <line class="ground" x1="92" y1="590" x2="540" y2="590"/>
+  <line class="ground" x1="660" y1="590" x2="1108" y2="590"/>
+
+  <!-- 左墙 -->
+  <line class="wall" x1="200" y1="240" x2="200" y2="585"/>
+  <line class="wall-tick" x1="200" y1="280" x2="176" y2="256"/>
+  <line class="wall-tick" x1="200" y1="340" x2="176" y2="316"/>
+  <line class="wall-tick" x1="200" y1="400" x2="176" y2="376"/>
+  <line class="wall-tick" x1="200" y1="460" x2="176" y2="436"/>
+  <line class="wall-tick" x1="200" y1="520" x2="176" y2="496"/>
+  <!-- 右墙 -->
+  <line class="wall" x1="760" y1="240" x2="760" y2="585"/>
+  <line class="wall-tick" x1="760" y1="280" x2="736" y2="256"/>
+  <line class="wall-tick" x1="760" y1="340" x2="736" y2="316"/>
+  <line class="wall-tick" x1="760" y1="400" x2="736" y2="376"/>
+  <line class="wall-tick" x1="760" y1="460" x2="736" y2="436"/>
+  <line class="wall-tick" x1="760" y1="520" x2="736" y2="496"/>
+
+  <!-- 起始位：背贴墙站立 -->
+  <g>
+    <ellipse class="muscle" cx="214" cy="452" rx="28" ry="23"/>
+    <ellipse class="muscle" cx="230" cy="495" rx="22" ry="40"/>
+    <path class="back" d="M222 452 L310 480 L310 585 L350 585"/>
+    <path class="back" d="M212 338 L252 390 L258 446"/>
+    <path class="ink" d="M205 450 L300 478 L300 585 L340 585"/>
+    <path class="ink" d="M205 330 L205 450"/>
+    <path class="ink" d="M214 338 L254 390 L260 446"/>
+    <path class="ink2" d="M206 308 L205 330"/>
+    <circle class="head" cx="226" cy="286" r="26"/>
+    <text x="164" y="252" class="label">墙</text>
+    <text x="82" y="550" class="label">背贴墙</text>
+    <text x="82" y="572" class="small">后脑勺、上背、臀部贴墙</text>
+    <line x1="156" y1="540" x2="198" y2="400" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="360" y="570" class="label">脚向前迈</text>
+    <text x="360" y="592" class="small">脚跟离墙约 45–60 厘米</text>
+    <line x1="420" y1="560" x2="344" y2="584" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="360" y="330" class="label">双手离开大腿</text>
+    <text x="360" y="352" class="small">叉腰或抱胸，不借力</text>
+    <line x1="420" y1="368" x2="264" y2="420" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- 保持位：沿墙下滑 -->
+  <g>
+    <ellipse class="muscle" cx="778" cy="480" rx="30" ry="25"/>
+    <ellipse class="muscle" cx="842" cy="492" rx="24" ry="34"/>
+    <path class="back" d="M776 478 L900 478 L900 585 L940 585"/>
+    <path class="back" d="M772 356 L826 394 L796 424"/>
+    <path class="ink" d="M765 475 L890 475 L890 585 L930 585"/>
+    <path class="ink" d="M765 350 L765 475"/>
+    <path class="ink" d="M774 358 L826 396 L794 426"/>
+    <path class="ink2" d="M766 328 L765 350"/>
+    <circle class="head" cx="786" cy="306" r="26"/>
+    <line x1="748" y1="475" x2="928" y2="475" class="line-dash"/>
+    <text x="946" y="380" class="label">膝约 90°</text>
+    <text x="946" y="402" class="small">膝盖对脚尖，不内扣</text>
+    <line x1="952" y1="418" x2="898" y2="470" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="946" y="556" class="label">全脚掌</text>
+    <text x="946" y="578" class="small">脚跟不离地</text>
+    <line x1="946" y1="542" x2="916" y2="500" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="648" y="330" class="label">大腿接近平行</text>
+    <text x="648" y="352" class="small">不用蹲到膝盖小于 90°</text>
+    <line x1="758" y1="368" x2="810" y2="470" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="648" y="620" class="label">自然呼吸</text>
+    <text x="648" y="642" class="small">不要憋气硬撑</text>
+  </g>
+
+  <!-- 底部三点提示 -->
+  <g>
+    <rect x="48" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="82" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="82" y="732" text-anchor="middle" class="num">1</text>
+    <text x="112" y="716" class="cue-title">背贴墙</text>
+    <text x="112" y="742" class="cue-sub">后脑勺、上背、臀部贴墙</text>
+
+    <rect x="424" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="458" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="458" y="732" text-anchor="middle" class="num">2</text>
+    <text x="488" y="716" class="cue-title">大腿接近平行</text>
+    <text x="488" y="742" class="cue-sub">膝盖约 90°，全脚掌踩稳</text>
+
+    <rect x="800" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="834" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="834" y="732" text-anchor="middle" class="num">3</text>
+    <text x="864" y="716" class="cue-title">膝盖对脚尖</text>
+    <text x="864" y="742" class="cue-sub">不内扣，自然呼吸</text>
+  </g>
+
+  <text x="48" y="805" class="footer">FitPulse 原创示意图 · 仅作动作教学参考 · 非医学建议</text>
+  <text x="1152" y="805" text-anchor="end" class="footer">EX-011 · v1.0</text>
+</svg>

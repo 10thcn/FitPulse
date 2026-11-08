@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">死虫式标准动作示意</title>
+  <desc id="desc">双栏侧面示意图：左侧为仰卧桌面位起始姿势，右侧为对侧手臂与腿伸出的姿势；标注腰背贴地、对侧伸展和慢速呼气。</desc>
+  <defs>
+    <style>
+      .bg{fill:#F7F3EA}
+      .card{fill:#FFFDF8;stroke:#D9D2C5;stroke-width:2}
+      .title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:40px;font-weight:800;fill:#FFFDF8}
+      .kicker{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;fill:#E9C46A}
+      .meta{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:17px;font-weight:600;fill:#FFFDF8}
+      .meta2{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;fill:#E9C46A}
+      .card-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:24px;font-weight:800;fill:#12303B}
+      .sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#7A7062}
+      .label{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:18px;font-weight:600;fill:#12303B}
+      .small{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .cue-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:19px;font-weight:700;fill:#12303B}
+      .cue-sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .num{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:16px;font-weight:800;fill:#FFFDF8}
+      .footer{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:13px;fill:#8A8173}
+      .ink{fill:none;stroke:#12303B;stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
+      .ink2{fill:none;stroke:#12303B;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+      .back{fill:none;stroke:#12303B;stroke-width:13;stroke-linecap:round;stroke-linejoin:round;opacity:.25}
+      .head{fill:#12303B}
+      .muscle{fill:#2A9D8F;opacity:.20}
+      .ground{stroke:#B9AE9C;stroke-width:4;stroke-linecap:round}
+      .accent{fill:none;stroke:#E76F51;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .hairline{stroke:#E7E0D2;stroke-width:1.5}
+      .mat{fill:#E7E0D2}
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#E76F51"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="820"/>
+  <rect width="1200" height="120" fill="#12303B"/>
+  <rect width="10" height="120" fill="#E76F51"/>
+  <text x="48" y="42" class="kicker">FITPULSE · STANDARD MOVEMENT LIBRARY</text>
+  <text x="48" y="90" class="title">06　死虫式</text>
+  <text x="1152" y="58" text-anchor="end" class="meta">EX-006 · 入门 · 无器械</text>
+  <text x="1152" y="88" text-anchor="end" class="meta2">核心 · 抗伸展 · 侧面视角</text>
+
+  <rect class="card" x="48" y="150" width="536" height="500" rx="24"/>
+  <rect class="card" x="616" y="150" width="536" height="500" rx="24"/>
+  <text x="80" y="196" class="card-title">起始位</text>
+  <text x="552" y="196" text-anchor="end" class="sub">桌面位：髋膝约 90°</text>
+  <text x="648" y="196" class="card-title">动作位</text>
+  <text x="1120" y="196" text-anchor="end" class="sub">对侧手脚同时伸展</text>
+  <line x1="80" y1="216" x2="552" y2="216" class="hairline"/>
+  <line x1="648" y1="216" x2="1120" y2="216" class="hairline"/>
+  <line class="ground" x1="92" y1="590" x2="540" y2="590"/>
+  <line class="ground" x1="660" y1="590" x2="1108" y2="590"/>
+  <rect class="mat" x="112" y="565" width="424" height="22" rx="11"/>
+  <rect class="mat" x="682" y="565" width="424" height="22" rx="11"/>
+
+  <!-- 起始位：桌面位 -->
+  <g>
+    <ellipse class="muscle" cx="310" cy="538" rx="58" ry="20"/>
+    <path class="back" d="M250 533 L250 462 L250 392"/>
+    <path class="back" d="M412 542 L478 436 L546 446 L564 456"/>
+    <path class="ink" d="M215 535 L400 535"/>
+    <path class="ink" d="M235 535 L235 466 L235 394"/>
+    <path class="ink" d="M400 535 L465 430 L535 440 L552 450"/>
+    <circle class="head" cx="170" cy="530" r="25"/>
+    <path class="ink2" d="M195 532 L215 535"/>
+    <circle cx="235" cy="394" r="5" fill="#12303B"/>
+    <text x="82" y="330" class="label">手臂垂直</text>
+    <text x="82" y="352" class="small">手腕在肩膀上方</text>
+    <line x1="190" y1="340" x2="233" y2="380" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="330" y="322" class="label">髋膝约 90°</text>
+    <text x="330" y="344" class="small">小腿接近平行地面</text>
+    <line x1="408" y1="362" x2="458" y2="418" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="82" y="620" class="label">腰背轻贴地</text>
+    <text x="82" y="642" class="small">肋骨下沉，颈部放松</text>
+    <line x1="220" y1="610" x2="300" y2="548" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- 动作位：对侧伸展 -->
+  <g>
+    <ellipse class="muscle" cx="815" cy="538" rx="64" ry="20"/>
+    <path class="back" d="M748 533 L748 462 L748 390"/>
+    <path class="back" d="M912 540 L976 436 L1044 446 L1062 456"/>
+    <path class="ink" d="M730 535 L900 535"/>
+    <path class="ink" d="M748 535 L714 500 L670 468"/>
+    <path class="ink" d="M900 535 L980 525 L1058 545 L1078 555"/>
+    <circle class="head" cx="680" cy="522" r="25"/>
+    <path class="ink2" d="M704 528 L730 535"/>
+    <circle cx="670" cy="468" r="5" fill="#12303B"/>
+    <circle cx="1078" cy="555" r="5" fill="#12303B"/>
+    <path class="accent" d="M956 380 L922 512" marker-end="url(#arrow)"/>
+    <text x="884" y="350" class="label">对侧手脚</text>
+    <text x="884" y="372" class="small">手臂与对侧腿同时伸出</text>
+    <text x="650" y="620" class="label">腰背不离地</text>
+    <text x="650" y="642" class="small">腿不必碰地，控制幅度</text>
+    <line x1="792" y1="608" x2="850" y2="548" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="1000" y="620" class="label">慢速呼气</text>
+    <text x="1000" y="642" class="small">伸出 3 秒，返回 3 秒</text>
+  </g>
+
+  <!-- 底部三点提示 -->
+  <g>
+    <rect x="48" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="82" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="82" y="732" text-anchor="middle" class="num">1</text>
+    <text x="112" y="716" class="cue-title">腰背贴地</text>
+    <text x="112" y="742" class="cue-sub">肋骨下沉，腹部收紧</text>
+
+    <rect x="424" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="458" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="458" y="732" text-anchor="middle" class="num">2</text>
+    <text x="488" y="716" class="cue-title">对侧手脚</text>
+    <text x="488" y="742" class="cue-sub">一侧手臂 + 对侧腿</text>
+
+    <rect x="800" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="834" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="834" y="732" text-anchor="middle" class="num">3</text>
+    <text x="864" y="716" class="cue-title">慢速呼气</text>
+    <text x="864" y="742" class="cue-sub">幅度以腰背贴地为限</text>
+  </g>
+
+  <text x="48" y="805" class="footer">FitPulse 原创示意图 · 仅作动作教学参考 · 非医学建议</text>
+  <text x="1152" y="805" text-anchor="end" class="footer">EX-006 · v1.0</text>
+</svg>

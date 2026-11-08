@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">开合跳标准动作示意</title>
+  <desc id="desc">双栏正面示意图：左侧为双脚并拢、手臂下垂的起始位，右侧为双脚分开、手臂过头的开位；标注轻柔落地、膝盖对脚尖和保持节奏。</desc>
+  <defs>
+    <style>
+      .bg{fill:#F7F3EA}
+      .card{fill:#FFFDF8;stroke:#D9D2C5;stroke-width:2}
+      .title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:40px;font-weight:800;fill:#FFFDF8}
+      .kicker{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;fill:#E9C46A}
+      .meta{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:17px;font-weight:600;fill:#FFFDF8}
+      .meta2{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;fill:#E9C46A}
+      .card-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:24px;font-weight:800;fill:#12303B}
+      .sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#7A7062}
+      .label{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:18px;font-weight:600;fill:#12303B}
+      .small{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .cue-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:19px;font-weight:700;fill:#12303B}
+      .cue-sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .num{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:16px;font-weight:800;fill:#FFFDF8}
+      .footer{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:13px;fill:#8A8173}
+      .ink{fill:none;stroke:#12303B;stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
+      .ink2{fill:none;stroke:#12303B;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+      .back{fill:none;stroke:#12303B;stroke-width:13;stroke-linecap:round;stroke-linejoin:round;opacity:.25}
+      .head{fill:#12303B}
+      .muscle{fill:#2A9D8F;opacity:.20}
+      .ground{stroke:#B9AE9C;stroke-width:4;stroke-linecap:round}
+      .accent{fill:none;stroke:#E76F51;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .hairline{stroke:#E7E0D2;stroke-width:1.5}
+      .motion{fill:none;stroke:#E76F51;stroke-width:4;stroke-linecap:round;stroke-dasharray:8 8}
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#E76F51"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="820"/>
+  <rect width="1200" height="120" fill="#12303B"/>
+  <rect width="10" height="120" fill="#E76F51"/>
+  <text x="48" y="42" class="kicker">FITPULSE · STANDARD MOVEMENT LIBRARY</text>
+  <text x="48" y="90" class="title">12　开合跳</text>
+  <text x="1152" y="58" text-anchor="end" class="meta">EX-012 · 入门 · 无器械</text>
+  <text x="1152" y="88" text-anchor="end" class="meta2">心肺 · 弹跳 · 正面视角</text>
+
+  <rect class="card" x="48" y="150" width="536" height="500" rx="24"/>
+  <rect class="card" x="616" y="150" width="536" height="500" rx="24"/>
+  <text x="80" y="196" class="card-title">起始位</text>
+  <text x="552" y="196" text-anchor="end" class="sub">双脚并拢，手臂下垂</text>
+  <text x="648" y="196" class="card-title">开位</text>
+  <text x="1120" y="196" text-anchor="end" class="sub">双脚分开，手臂过头</text>
+  <line x1="80" y1="216" x2="552" y2="216" class="hairline"/>
+  <line x1="648" y1="216" x2="1120" y2="216" class="hairline"/>
+  <line class="ground" x1="92" y1="590" x2="540" y2="590"/>
+  <line class="ground" x1="660" y1="590" x2="1108" y2="590"/>
+  <ellipse cx="300" cy="596" rx="72" ry="9" fill="#D9D2C5" opacity=".55"/>
+  <ellipse cx="870" cy="596" rx="124" ry="9" fill="#D9D2C5" opacity=".55"/>
+
+  <!-- 起始位：并拢 -->
+  <g>
+    <ellipse class="muscle" cx="270" cy="520" rx="18" ry="34"/>
+    <ellipse class="muscle" cx="330" cy="520" rx="18" ry="34"/>
+    <ellipse class="muscle" cx="292" cy="458" rx="22" ry="20"/>
+    <ellipse class="muscle" cx="308" cy="458" rx="22" ry="20"/>
+    <path class="ink" d="M300 315 L300 450"/>
+    <path class="ink" d="M280 450 L272 520 L272 585 L250 585"/>
+    <path class="ink" d="M320 450 L328 520 L328 585 L350 585"/>
+    <path class="ink" d="M260 330 L244 400 L238 480"/>
+    <path class="ink" d="M340 330 L356 400 L362 480"/>
+    <line x1="260" y1="330" x2="340" y2="330" class="ink2"/>
+    <line x1="280" y1="450" x2="320" y2="450" class="ink2"/>
+    <path class="ink2" d="M300 282 L300 315"/>
+    <circle class="head" cx="300" cy="256" r="26"/>
+    <text x="80" y="340" class="label">身体直立</text>
+    <text x="80" y="362" class="small">核心轻收，膝盖微屈</text>
+    <line x1="194" y1="352" x2="282" y2="360" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="374" y="540" class="label">双脚并拢</text>
+    <text x="374" y="562" class="small">或与髋同宽，重心居中</text>
+    <line x1="438" y1="536" x2="336" y2="576" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="370" y="620" class="label">手臂自然下垂</text>
+    <text x="370" y="642" class="small">肩膀放松，不耸肩</text>
+  </g>
+
+  <!-- 开位：跳开 -->
+  <g>
+    <ellipse class="muscle" cx="810" cy="520" rx="20" ry="34"/>
+    <ellipse class="muscle" cx="930" cy="520" rx="20" ry="34"/>
+    <ellipse class="muscle" cx="850" cy="458" rx="22" ry="20"/>
+    <ellipse class="muscle" cx="890" cy="458" rx="22" ry="20"/>
+    <path class="ink" d="M870 315 L870 450"/>
+    <path class="ink" d="M850 450 L800 510 L780 585 L748 585"/>
+    <path class="ink" d="M890 450 L940 510 L960 585 L992 585"/>
+    <path class="ink" d="M830 330 L816 256 L800 182"/>
+    <path class="ink" d="M910 330 L924 256 L940 182"/>
+    <line x1="830" y1="330" x2="910" y2="330" class="ink2"/>
+    <line x1="850" y1="450" x2="890" y2="450" class="ink2"/>
+    <path class="ink2" d="M870 282 L870 315"/>
+    <circle class="head" cx="870" cy="256" r="26"/>
+    <path class="motion" d="M772 566 L724 566" marker-end="url(#arrow)"/>
+    <path class="motion" d="M968 566 L1016 566" marker-end="url(#arrow)"/>
+    <path class="motion" d="M750 300 L714 280" marker-end="url(#arrow)"/>
+    <path class="motion" d="M990 300 L1026 280" marker-end="url(#arrow)"/>
+    <text x="648" y="320" class="label">手臂过头</text>
+    <text x="648" y="342" class="small">肩膀放松，不耸肩</text>
+    <line x1="752" y1="354" x2="812" y2="322" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="930" y="390" class="label">膝盖对脚尖</text>
+    <text x="930" y="412" class="small">落地时微屈缓冲</text>
+    <line x1="930" y1="426" x2="906" y2="496" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="648" y="620" class="label">轻柔落地</text>
+    <text x="648" y="642" class="small">不要僵直膝盖砸地</text>
+    <line x1="750" y1="610" x2="782" y2="560" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- 底部三点提示 -->
+  <g>
+    <rect x="48" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="82" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="82" y="732" text-anchor="middle" class="num">1</text>
+    <text x="112" y="716" class="cue-title">轻柔落地</text>
+    <text x="112" y="742" class="cue-sub">膝盖微屈，缓冲落地</text>
+
+    <rect x="424" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="458" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="458" y="732" text-anchor="middle" class="num">2</text>
+    <text x="488" y="716" class="cue-title">膝盖对脚尖</text>
+    <text x="488" y="742" class="cue-sub">不内扣，脚掌均匀受力</text>
+
+    <rect x="800" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="834" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="834" y="732" text-anchor="middle" class="num">3</text>
+    <text x="864" y="716" class="cue-title">保持节奏</text>
+    <text x="864" y="742" class="cue-sub">呼吸自然，宁慢勿乱</text>
+  </g>
+
+  <text x="48" y="805" class="footer">FitPulse 原创示意图 · 仅作动作教学参考 · 非医学建议</text>
+  <text x="1152" y="805" text-anchor="end" class="footer">EX-012 · v1.0</text>
+</svg>
