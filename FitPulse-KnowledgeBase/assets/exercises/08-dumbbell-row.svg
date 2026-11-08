@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">哑铃单臂俯身划船标准动作示意</title>
+  <desc id="desc">双栏侧面示意图：左侧为手膝支撑、哑铃下垂的起始位，右侧为肘部后拉、哑铃靠近髋部的动作位；标注背部平直、髋部方正和拉向髋部。</desc>
+  <defs>
+    <style>
+      .bg{fill:#F7F3EA}
+      .card{fill:#FFFDF8;stroke:#D9D2C5;stroke-width:2}
+      .title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:40px;font-weight:800;fill:#FFFDF8}
+      .kicker{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;fill:#E9C46A}
+      .meta{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:17px;font-weight:600;fill:#FFFDF8}
+      .meta2{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:15px;fill:#E9C46A}
+      .card-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:24px;font-weight:800;fill:#12303B}
+      .sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#7A7062}
+      .label{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:18px;font-weight:600;fill:#12303B}
+      .small{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .cue-title{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:19px;font-weight:700;fill:#12303B}
+      .cue-sub{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:14px;fill:#667085}
+      .num{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:16px;font-weight:800;fill:#FFFDF8}
+      .footer{font-family:'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif;font-size:13px;fill:#8A8173}
+      .ink{fill:none;stroke:#12303B;stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
+      .ink2{fill:none;stroke:#12303B;stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+      .back{fill:none;stroke:#12303B;stroke-width:13;stroke-linecap:round;stroke-linejoin:round;opacity:.25}
+      .head{fill:#12303B}
+      .muscle{fill:#2A9D8F;opacity:.20}
+      .ground{stroke:#B9AE9C;stroke-width:4;stroke-linecap:round}
+      .accent{fill:none;stroke:#E76F51;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .hairline{stroke:#E7E0D2;stroke-width:1.5}
+      .bench{fill:#D9D2C5}
+      .bench-leg{stroke:#8A8173;stroke-width:10;stroke-linecap:round}
+      .weight{fill:#E76F51}
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#E76F51"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="820"/>
+  <rect width="1200" height="120" fill="#12303B"/>
+  <rect width="10" height="120" fill="#E76F51"/>
+  <text x="48" y="42" class="kicker">FITPULSE · STANDARD MOVEMENT LIBRARY</text>
+  <text x="48" y="90" class="title">08　哑铃单臂俯身划船</text>
+  <text x="1152" y="58" text-anchor="end" class="meta">EX-008 · 进阶 · 哑铃</text>
+  <text x="1152" y="88" text-anchor="end" class="meta2">上肢 · 水平拉 · 侧面视角</text>
+
+  <rect class="card" x="48" y="150" width="536" height="500" rx="24"/>
+  <rect class="card" x="616" y="150" width="536" height="500" rx="24"/>
+  <text x="80" y="196" class="card-title">起始位</text>
+  <text x="552" y="196" text-anchor="end" class="sub">手膝支撑，哑铃下垂</text>
+  <text x="648" y="196" class="card-title">动作位</text>
+  <text x="1120" y="196" text-anchor="end" class="sub">肘后拉，哑铃到髋部</text>
+  <line x1="80" y1="216" x2="552" y2="216" class="hairline"/>
+  <line x1="648" y1="216" x2="1120" y2="216" class="hairline"/>
+  <line class="ground" x1="92" y1="590" x2="540" y2="590"/>
+  <line class="ground" x1="660" y1="590" x2="1108" y2="590"/>
+
+  <!-- 椅子与支撑面 -->
+  <rect class="bench" x="430" y="452" width="152" height="18" rx="9"/>
+  <line class="bench-leg" x1="450" y1="470" x2="450" y2="585"/>
+  <line class="bench-leg" x1="562" y1="470" x2="562" y2="585"/>
+  <rect class="bench" x="932" y="452" width="152" height="18" rx="9"/>
+  <line class="bench-leg" x1="952" y1="470" x2="952" y2="585"/>
+  <line class="bench-leg" x1="1064" y1="470" x2="1064" y2="585"/>
+
+  <!-- 起始位：手膝支撑，哑铃下垂 -->
+  <g>
+    <ellipse class="muscle" cx="300" cy="414" rx="38" ry="18"/>
+    <ellipse class="muscle" cx="246" cy="500" rx="19" ry="30"/>
+    <path class="back" d="M352 438 L322 512 L322 585 L292 585"/>
+    <path class="ink" d="M360 435 L330 512 L330 585 L300 585"/>
+    <path class="ink" d="M240 400 L360 435"/>
+    <path class="ink" d="M360 435 L455 450 L522 450"/>
+    <path class="ink" d="M240 400 L350 422 L500 450"/>
+    <path class="ink" d="M240 400 L235 480 L235 540"/>
+    <path class="ink2" d="M216 386 L240 400"/>
+    <circle class="head" cx="196" cy="372" r="25"/>
+    <circle cx="500" cy="450" r="4" fill="#12303B"/>
+    <!-- 哑铃 -->
+    <line x1="225" y1="552" x2="245" y2="552" stroke="#12303B" stroke-width="7" stroke-linecap="round"/>
+    <rect class="weight" x="210" y="541" width="14" height="22" rx="4"/>
+    <rect class="weight" x="246" y="541" width="14" height="22" rx="4"/>
+    <text x="70" y="300" class="label">背部平直</text>
+    <text x="70" y="322" class="small">胸骨朝下，不弓背</text>
+    <line x1="190" y1="312" x2="318" y2="416" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="360" y="320" class="label">髋部方正</text>
+    <text x="360" y="342" class="small">支撑稳定，不向一侧翻</text>
+    <line x1="402" y1="354" x2="374" y2="420" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="70" y="622" class="label">手臂在肩下</text>
+    <text x="70" y="644" class="small">哑铃自然下垂，肩不耸</text>
+    <line x1="214" y1="604" x2="232" y2="556" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- 动作位：拉起 -->
+  <g>
+    <ellipse class="muscle" cx="842" cy="414" rx="38" ry="18"/>
+    <ellipse class="muscle" cx="850" cy="438" rx="24" ry="18"/>
+    <path class="back" d="M892 438 L862 512 L862 585 L832 585"/>
+    <path class="ink" d="M900 435 L870 512 L870 585 L840 585"/>
+    <path class="ink" d="M790 400 L900 435"/>
+    <path class="ink" d="M900 435 L962 450 L1022 450"/>
+    <path class="ink" d="M790 400 L882 426 L1002 450"/>
+    <path class="ink" d="M790 400 L850 440 L900 455"/>
+    <path class="ink2" d="M766 386 L790 400"/>
+    <circle class="head" cx="746" cy="372" r="25"/>
+    <circle cx="1002" cy="450" r="4" fill="#12303B"/>
+    <!-- 拉到髋部的哑铃 -->
+    <line x1="900" y1="465" x2="918" y2="458" stroke="#12303B" stroke-width="7" stroke-linecap="round"/>
+    <rect class="weight" x="886" y="468" width="14" height="22" rx="4"/>
+    <rect class="weight" x="918" y="450" width="14" height="22" rx="4"/>
+    <path class="accent" d="M980 520 L930 476" marker-end="url(#arrow)"/>
+    <text x="982" y="540" class="label">拉向髋部</text>
+    <text x="982" y="562" class="small">肘贴身后拉，不耸肩</text>
+    <text x="648" y="310" class="label">背不弓、身不扭</text>
+    <text x="648" y="332" class="small">躯干保持稳定，肩胛后收</text>
+    <line x1="760" y1="346" x2="824" y2="414" stroke="#E76F51" stroke-width="4" stroke-linecap="round"/>
+    <text x="660" y="622" class="label">顶峰停 1 秒</text>
+    <text x="660" y="644" class="small">下放 2–3 秒，手臂伸直</text>
+  </g>
+
+  <!-- 底部三点提示 -->
+  <g>
+    <rect x="48" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="82" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="82" y="732" text-anchor="middle" class="num">1</text>
+    <text x="112" y="716" class="cue-title">背部平直</text>
+    <text x="112" y="742" class="cue-sub">髋部方正，支撑稳定</text>
+
+    <rect x="424" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="458" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="458" y="732" text-anchor="middle" class="num">2</text>
+    <text x="488" y="716" class="cue-title">肘贴身后拉</text>
+    <text x="488" y="742" class="cue-sub">肩胛下沉，不耸肩</text>
+
+    <rect x="800" y="680" width="352" height="92" rx="18" fill="#FFFDF8" stroke="#D9D2C5" stroke-width="2"/>
+    <circle cx="834" cy="726" r="16" fill="#2A9D8F"/>
+    <text x="834" y="732" text-anchor="middle" class="num">3</text>
+    <text x="864" y="716" class="cue-title">拉向髋部</text>
+    <text x="864" y="742" class="cue-sub">躯干不转，控制下放</text>
+  </g>
+
+  <text x="48" y="805" class="footer">FitPulse 原创示意图 · 仅作动作教学参考 · 非医学建议</text>
+  <text x="1152" y="805" text-anchor="end" class="footer">EX-008 · v1.0</text>
+</svg>
