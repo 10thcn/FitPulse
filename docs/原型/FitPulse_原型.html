@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FitPulse - 智能健身教练</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --orange: #FF6B35;
+  --orange-light: #FFF0E8;
+  --dark: #2D2D2D;
+  --gray-bg: #F5F5F5;
+  --gray-text: #888;
+  --white: #fff;
+  --green: #4CAF50;
+  --border: #E8E8E8;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #E8E8E8;
+  display: flex; justify-content: center; align-items: center; min-height: 100vh;
+}
+/* Phone Frame */
+.phone {
+  width: 390px; height: 844px;
+  background: var(--gray-bg);
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.phone-header {
+  background: var(--white);
+  padding: 12px 20px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.phone-header .time { font-size: 15px; font-weight: 600; color: var(--dark); }
+.status-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 24px 0; background: var(--white);
+}
+.status-bar .time { font-size: 15px; font-weight: 600; }
+.status-icons { display: flex; gap: 6px; font-size: 12px; color: var(--dark); }
+
+/* Content area */
+.content {
+  flex: 1; overflow-y: auto; padding-bottom: 0;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.content::-webkit-scrollbar { display: none; }
+
+/* Page container - all pages side by side */
+.pages-wrapper { display: flex; flex-direction: column; gap: 0; }
+
+/* ---- PAGE 1: AI Coach Chat ---- */
+.chat-page { background: var(--gray-bg); display: flex; flex-direction: column; height: 100%; }
+.chat-header {
+  background: linear-gradient(135deg, var(--orange), #FF8C5A);
+  color: var(--white); padding: 16px 20px;
+}
+.chat-header h1 { font-size: 18px; margin-bottom: 4px; }
+.chat-header p { font-size: 12px; opacity: 0.85; }
+.quick-actions {
+  display: flex; gap: 8px; padding: 12px 16px;
+  background: var(--white); border-bottom: 1px solid var(--border);
+}
+.quick-btn {
+  flex: 1; padding: 8px 6px; border-radius: 20px; border: 1px solid var(--orange);
+  background: var(--white); color: var(--orange); font-size: 12px;
+  cursor: pointer; text-align: center; transition: all 0.2s;
+  white-space: nowrap;
+}
+.quick-btn:active { background: var(--orange); color: #fff; }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+}
+/* Agent welcome card */
+.agent-card {
+  background: var(--white); border-radius: 16px; padding: 16px;
+  margin-bottom: 12px; border-left: 4px solid var(--orange);
+}
+.agent-card .agent-name { font-size: 14px; font-weight: 600; color: var(--orange); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.agent-card .agent-name .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--orange); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.agent-card .msg { font-size: 13px; color: var(--dark); line-height: 1.6; margin-bottom: 10px; }
+.agent-card .source { font-size: 11px; color: var(--gray-text); }
+/* User message */
+.user-msg {
+  background: var(--orange); color: #fff; padding: 10px 14px;
+  border-radius: 18px 18px 4px 18px; margin-bottom: 12px;
+  margin-left: auto; max-width: 80%; font-size: 13px; line-height: 1.5;
+}
+/* Knowledge card */
+.knowledge-card {
+  background: var(--white); border-radius: 16px; padding: 14px; margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.knowledge-card .title { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
+.knowledge-card .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.knowledge-card .tag { padding: 3px 8px; border-radius: 10px; font-size: 11px; background: var(--orange-light); color: var(--orange); }
+.knowledge-card .detail { font-size: 12px; color: #555; line-height: 1.6; }
+.knowledge-card .detail ul { padding-left: 16px; }
+.chat-input-area {
+  background: var(--white); padding: 10px 14px; display: flex; align-items: center;
+  gap: 8px; border-top: 1px solid var(--border);
+}
+.chat-input {
+  flex: 1; border: 1px solid var(--border); border-radius: 24px;
+  padding: 10px 16px; font-size: 14px; outline: none;
+}
+.chat-input:focus { border-color: var(--orange); }
+.send-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: var(--orange); color: #fff; font-size: 18px; cursor: pointer;
+}
+.camera-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: var(--gray-bg); font-size: 18px; cursor: pointer;
+}
+
+/* ---- PAGE 2: Training Plan ---- */
+.plan-page { background: var(--gray-bg); }
+.plan-header {
+  background: linear-gradient(135deg, var(--orange), #FF8C5A);
+  color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+}
+.plan-header h2 { font-size: 17px; }
+.plan-header .refresh-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer; }
+.week-selector { display: flex; padding: 12px 16px; gap: 8px; background: var(--white); }
+.week-tab { flex: 1; text-align: center; padding: 8px; border-radius: 20px; font-size: 12px; background: var(--gray-bg); color: var(--gray-text); cursor: pointer; }
+.week-tab.active { background: var(--orange); color: #fff; }
+.plan-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
+.plan-day-card {
+  background: var(--white); border-radius: 16px; padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.plan-day-card.completed { border-left: 4px solid var(--green); background: #F8FFF8; }
+.plan-day-card .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.plan-day-card .day-title { font-size: 15px; font-weight: 600; }
+.plan-day-card .day-title .day-num { color: var(--orange); }
+.plan-day-card .day-duration { font-size: 12px; color: var(--gray-text); }
+.plan-day-card .focus { font-size: 12px; color: var(--gray-text); margin-bottom: 10px; }
+.exercise-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+.exercise-item:last-child { border-bottom: none; }
+.exercise-item .check {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+  cursor: pointer; flex-shrink: 0;
+}
+.exercise-item .check.done { background: var(--green); border-color: var(--green); color: #fff; }
+.exercise-item .ex-info { flex: 1; }
+.exercise-item .ex-name { font-size: 13px; font-weight: 500; }
+.exercise-item .ex-sets { font-size: 11px; color: var(--gray-text); }
+.exercise-item .ex-img { width: 40px; height: 40px; border-radius: 8px; background: var(--orange-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+
+/* ---- PAGE 3: Posture Correction ---- */
+.correction-page { background: var(--gray-bg); }
+.correction-header {
+  background: linear-gradient(135deg, var(--orange), #FF8C5A);
+  color: #fff; padding: 16px 20px; text-align: center;
+}
+.correction-header h2 { font-size: 17px; }
+.correction-content { padding: 16px; }
+.upload-area {
+  background: var(--white); border: 2px dashed var(--orange); border-radius: 16px;
+  padding: 30px 20px; text-align: center; margin-bottom: 16px; cursor: pointer;
+}
+.upload-area .icon { font-size: 40px; margin-bottom: 8px; }
+.upload-area .text { font-size: 13px; color: var(--gray-text); margin-bottom: 12px; }
+.upload-btns { display: flex; gap: 10px; justify-content: center; }
+.upload-btn {
+  padding: 10px 20px; border-radius: 24px; border: none; font-size: 13px; cursor: pointer;
+}
+.upload-btn.camera { background: var(--orange); color: #fff; }
+.upload-btn.gallery { background: var(--gray-bg); color: var(--dark); border: 1px solid var(--border); }
+/* Correction result */
+.correction-result {
+  background: var(--white); border-radius: 16px; padding: 16px;
+}
+.correction-result .overall { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--dark); }
+.issue-card {
+  background: #FFF8F5; border-radius: 12px; padding: 12px; margin-bottom: 10px;
+  border-left: 3px solid var(--orange);
+}
+.issue-card .body-part { font-size: 13px; font-weight: 600; color: var(--orange); margin-bottom: 4px; }
+.issue-card .problem { font-size: 12px; color: #666; margin-bottom: 4px; }
+.issue-card .advice { font-size: 12px; color: var(--green); }
+.safety-note {
+  background: #FFF3CD; border-radius: 12px; padding: 12px; margin-top: 12px;
+  font-size: 12px; color: #856404; display: flex; align-items: center; gap: 8px;
+}
+.history-list { margin-top: 16px; }
+.history-item {
+  background: var(--white); border-radius: 12px; padding: 12px; margin-bottom: 8px;
+  font-size: 12px; display: flex; justify-content: space-between; align-items: center;
+}
+
+/* ---- PAGE 4: Profile ---- */
+.profile-page { background: var(--gray-bg); }
+.profile-card {
+  background: linear-gradient(135deg, var(--orange), #FF8C5A);
+  color: #fff; padding: 30px 20px 20px; text-align: center;
+}
+.profile-avatar {
+  width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.3);
+  margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 32px; border: 3px solid rgba(255,255,255,0.5);
+}
+.profile-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.profile-level { font-size: 12px; opacity: 0.8; margin-bottom: 12px; }
+.edit-profile-btn {
+  background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5);
+  color: #fff; padding: 6px 20px; border-radius: 16px; font-size: 12px; cursor: pointer;
+}
+/* Stats */
+.stats-section { padding: 16px; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.stat-item {
+  background: var(--white); border-radius: 14px; padding: 16px; text-align: center;
+}
+.stat-item .stat-num { font-size: 24px; font-weight: 700; color: var(--orange); }
+.stat-item .stat-label { font-size: 11px; color: var(--gray-text); margin-top: 4px; }
+.ring-chart {
+  background: var(--white); border-radius: 14px; padding: 16px; text-align: center;
+}
+.ring-chart .label { font-size: 12px; color: var(--gray-text); margin-bottom: 8px; }
+.ring { width: 100px; height: 100px; margin: 0 auto; position: relative; }
+.ring svg { transform: rotate(-90deg); }
+.ring .ring-text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 20px; font-weight: 700; color: var(--orange);
+}
+.info-list { margin-top: 14px; }
+.info-item {
+  background: var(--white); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center; font-size: 13px;
+}
+.info-item .arrow { color: #ccc; }
+
+/* ---- Bottom Nav ---- */
+.bottom-nav {
+  background: var(--white); border-top: 1px solid var(--border);
+  display: flex; padding: 6px 0 20px; justify-content: space-around;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  cursor: pointer; font-size: 20px; padding: 4px 12px; color: var(--gray-text);
+  transition: color 0.2s;
+}
+.nav-item.active { color: var(--orange); }
+.nav-item .nav-label { font-size: 10px; }
+
+/* ---- PAGE 5: Admin - Knowledge Base ---- */
+.admin-header {
+  background: var(--dark); color: #fff; padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 600;
+}
+.admin-header .back { font-size: 20px; cursor: pointer; }
+.admin-content { padding: 14px; }
+.admin-card {
+  background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.admin-card .card-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.admin-card .card-title .add-btn { font-size: 12px; color: var(--orange); cursor: pointer; }
+.knowledge-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+.knowledge-table th { text-align: left; padding: 6px; background: var(--gray-bg); color: var(--gray-text); font-weight: 500; }
+.knowledge-table td { padding: 6px; border-bottom: 1px solid #f5f5f5; }
+.knowledge-table .action { color: var(--orange); cursor: pointer; }
+.module-tag { padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+.module-tag.action { background: #E3F2FD; color: #1976D2; }
+.module-tag.muscle { background: #E8F5E9; color: #388E3C; }
+.module-tag.error { background: #FFF3E0; color: #E65100; }
+
+/* ---- PAGE 6: Admin - Users ---- */
+.stat-bar {
+  display: flex; gap: 10px; margin-bottom: 14px;
+}
+.stat-bar .stat-box {
+  flex: 1; background: var(--white); border-radius: 12px; padding: 12px; text-align: center;
+}
+.stat-bar .stat-box .num { font-size: 22px; font-weight: 700; color: var(--dark); }
+.stat-bar .stat-box .lbl { font-size: 10px; color: var(--gray-text); }
+.user-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+.user-table th { text-align: left; padding: 6px 8px; background: var(--gray-bg); color: var(--gray-text); font-weight: 500; }
+.user-table td { padding: 8px 6px; border-bottom: 1px solid #f5f5f5; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.status-dot.online { background: var(--green); }
+
+/* ---- PAGE 7: Admin - Dashboard ---- */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.dash-stat {
+  background: var(--white); border-radius: 12px; padding: 14px; text-align: center;
+}
+.dash-stat .dash-num { font-size: 28px; font-weight: 700; color: var(--orange); }
+.dash-stat .dash-lbl { font-size: 11px; color: var(--gray-text); margin-top: 4px; }
+.chart-placeholder {
+  background: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 12px;
+}
+.chart-placeholder .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; }
+.chart-bar {
+  flex: 1; background: var(--orange); border-radius: 4px 4px 0 0; opacity: 0.7;
+  min-height: 8px;
+}
+.chart-bar:hover { opacity: 1; }
+.chart-labels { display: flex; gap: 6px; font-size: 9px; color: var(--gray-text); margin-top: 6px; }
+.chart-labels span { flex: 1; text-align: center; }
+
+/* Navigation between pages */
+.page-section { padding: 20px 0; border-bottom: 2px solid #eee; }
+.page-label {
+  text-align: center; font-size: 13px; color: var(--gray-text);
+  padding: 8px 0; background: var(--white); margin-bottom: 0;
+  position: sticky; top: 0; z-index: 10;
+}
+/* === Virtual Avatar Companion === */
+.avatar-companion {
+  position: relative; display: flex; align-items: center; gap: 10px;
+}
+.avatar-body {
+  width: 60px; height: 70px; position: relative; flex-shrink: 0;
+  animation: avatar-float 3s ease-in-out infinite;
+}
+.avatar-head {
+  width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(180deg, #FFD4A3, #FDB872);
+  margin: 0 auto; position: relative;
+}
+.avatar-head .eye { position: absolute; width: 5px; height: 6px; background: var(--dark); border-radius: 50%; top: 14px; }
+.avatar-head .eye.left { left: 10px; }
+.avatar-head .eye.right { right: 10px; }
+.avatar-head .mouth { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 12px; height: 6px; border-radius: 0 0 12px 12px; background: #E87040; }
+.avatar-torso {
+  width: 28px; height: 24px; background: linear-gradient(180deg, #FF6B35, #E85D2C);
+  margin: -2px auto 0; border-radius: 6px 6px 8px 8px;
+  position: relative;
+}
+.avatar-torso::after {
+  content: '💪'; position: absolute; top: -16px; font-size: 10px;
+  animation: flex-arm 1.5s ease-in-out infinite alternate;
+}
+.avatar-legs {
+  display: flex; gap: 6px; justify-content: center; margin-top: -1px;
+}
+.avatar-legs::before, .avatar-legs::after {
+  content: ''; width: 10px; height: 14px; background: #555; border-radius: 0 0 4px 4px;
+}
+.avatar-shadow {
+  width: 36px; height: 8px; background: rgba(0,0,0,0.1); border-radius: 50%; margin: 2px auto 0;
+  animation: shadow-pulse 3s ease-in-out infinite;
+}
+.virtual-trainer-badge {
+  background: linear-gradient(135deg, #FF6B35, #FF3D6E); color: #fff;
+  padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 4px;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+.avatar-speech {
+  background: var(--white); border-radius: 16px 16px 16px 4px;
+  padding: 8px 12px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: relative; margin-left: 6px; max-width: 200px;
+  animation: speech-pop 0.3s ease-out;
+}
+.avatar-speech::after {
+  content: ''; position: absolute; left: -6px; bottom: 8px;
+  width: 0; height: 0; border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent; border-right: 6px solid #fff;
+}
+@keyframes avatar-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes shadow-pulse {
+  0%, 100% { transform: scaleX(1); opacity: 0.5; }
+  50% { transform: scaleX(0.7); opacity: 0.3; }
+}
+@keyframes flex-arm {
+  0% { transform: rotate(-10deg); }
+  100% { transform: rotate(10deg); }
+}
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes speech-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar"><span class="time">9:41</span><span class="status-icons">📶 🔋</span></div>
+
+  <div class="content">
+
+    <!-- ==================== PAGE 1: AI教练对话 ==================== -->
+    <div class="page-section">
+      <div class="page-label">📱 页面1 — 智能教练对话首页</div>
+      <div class="chat-page">
+        <div class="chat-header">
+          <div class="avatar-companion">
+            <div class="avatar-body">
+              <div class="avatar-head">
+                <div class="eye left"></div><div class="eye right"></div>
+                <div class="mouth"></div>
+              </div>
+              <div class="avatar-torso"></div>
+              <div class="avatar-legs"></div>
+              <div class="avatar-shadow"></div>
+            </div>
+            <div>
+              <h1 style="margin-bottom:2px">💪 FitPulse 智能教练</h1>
+              <span class="virtual-trainer-badge">🤖 AI虚拟陪练在线</span>
+            </div>
+          </div>
+        </div>
+        <div class="quick-actions">
+          <div class="quick-btn">🔍 查动作</div>
+          <div class="quick-btn">📋 生成计划</div>
+          <div class="quick-btn">🩺 动作纠错</div>
+        </div>
+        <div class="chat-messages">
+          <!-- Virtual Trainer Introduction -->
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
+            <div class="avatar-body" style="width:50px;height:58px">
+              <div class="avatar-head" style="width:30px;height:30px"><div class="eye left" style="top:12px;left:8px"></div><div class="eye right" style="top:12px;right:8px"></div><div class="mouth"></div></div>
+              <div class="avatar-torso" style="width:24px;height:20px"></div>
+              <div class="avatar-legs"></div>
+              <div class="avatar-shadow" style="width:30px"></div>
+            </div>
+            <div class="avatar-speech">你好！我是你的AI虚拟陪练 🏃<br>会一直陪着你训练，加油！💪</div>
+          </div>
+          <!-- Agent greeting -->
+          <div class="agent-card">
+            <div class="agent-name"><span class="avatar">🤖</span> FitPulse 教练</div>
+            <div class="msg">你好！我是你的智能健身教练 💪<br>在开始之前，先了解下你的情况吧～</div>
+          </div>
+          <!-- User reply -->
+          <div class="user-msg">我想了解深蹲的标准动作</div>
+          <!-- Agent knowledge card -->
+          <div class="knowledge-card">
+            <div class="title">📌 深蹲（标准动作）</div>
+            <div class="tags">
+              <span class="tag">股四头肌</span><span class="tag">臀大肌</span><span class="tag">核心</span>
+            </div>
+            <div class="detail">
+              <ul>
+                <li><b>起始姿势：</b>双脚与肩同宽，脚尖微外展</li>
+                <li><b>动作轨迹：</b>吸气下蹲至大腿平行地面</li>
+                <li><b>呼吸：</b>下蹲吸气，起身呼气</li>
+                <li><b>节奏：</b>2-1-2（下2秒-底停1秒-上2秒）</li>
+              </ul>
+              <p style="margin-top:6px">⚠️ <b>常见错误：</b>膝内扣、塌腰、重心前移</p>
+            </div>
+            <div class="source" style="margin-top:8px">📚 参考：运动解剖学·下肢篇</div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <button class="camera-btn">📷</button>
+          <input class="chat-input" placeholder="输入你的问题..." value="那俯卧撑呢？">
+          <button class="send-btn">➤</button>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item active">💬<span class="nav-label">教练</span></div>
+          <div class="nav-item">📋<span class="nav-label">计划</span></div>
+          <div class="nav-item">👤<span class="nav-label">我的</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 2: 训练计划 ==================== -->
+    <div class="page-section">
+      <div class="page-label">📱 页面2 — 训练计划页</div>
+      <div class="plan-page">
+        <div class="plan-header">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar-body" style="width:40px;height:48px;animation:none">
+              <div class="avatar-head" style="width:24px;height:24px"><div class="eye left" style="top:9px;left:6px;width:4px;height:5px"></div><div class="eye right" style="top:9px;right:6px;width:4px;height:5px"></div><div class="mouth" style="width:9px;height:4px"></div></div>
+              <div class="avatar-torso" style="width:18px;height:16px"></div>
+              <div class="avatar-legs"></div>
+              <div class="avatar-shadow" style="width:24px"></div>
+            </div>
+            <div><h2 style="font-size:17px">📋 训练计划</h2><p style="font-size:10px;opacity:0.8">虚拟陪练为你定制</p></div>
+          </div>
+          <span class="refresh-btn">🔄 重新生成</span>
+        </div>
+        <div class="week-selector">
+          <span class="week-tab">上周</span>
+          <span class="week-tab active">本周</span>
+          <span class="week-tab">下周</span>
+        </div>
+        <div class="plan-list">
+          <!-- Day 1 -->
+          <div class="plan-day-card completed">
+            <div class="day-header">
+              <span class="day-title"><span class="day-num">周一</span> · 胸部+三头</span>
+              <span class="day-duration">⏱ 约45分钟</span>
+            </div>
+            <div class="exercise-item">
+              <span class="check done">✓</span>
+              <span class="ex-img">🏋️</span>
+              <div class="ex-info">
+                <div class="ex-name">俯卧撑</div>
+                <div class="ex-sets">4组 × 12次 | 休息60s</div>
+              </div>
+            </div>
+            <div class="exercise-item">
+              <span class="check done">✓</span>
+              <span class="ex-img">🏋️</span>
+              <div class="ex-info">
+                <div class="ex-name">哑铃卧推</div>
+                <div class="ex-sets">3组 × 10次 | 休息90s</div>
+              </div>
+            </div>
+            <p style="font-size:12px;color:var(--green);margin-top:8px">✅ 今日完成</p>
+          </div>
+          <!-- Day 2 -->
+          <div class="plan-day-card">
+            <div class="day-header">
+              <span class="day-title"><span class="day-num">周三</span> · 背部+二头</span>
+              <span class="day-duration">⏱ 约40分钟</span>
+            </div>
+            <div class="exercise-item">
+              <span class="check">○</span>
+              <span class="ex-img">🚣</span>
+              <div class="ex-info">
+                <div class="ex-name">哑铃划船</div>
+                <div class="ex-sets">4组 × 10次 | 休息60s</div>
+              </div>
+            </div>
+            <div class="exercise-item">
+              <span class="check">○</span>
+              <span class="ex-img">💪</span>
+              <div class="ex-info">
+                <div class="ex-name">哑铃弯举</div>
+                <div class="ex-sets">3组 × 12次 | 休息60s</div>
+              </div>
+            </div>
+          </div>
+          <!-- Day 3 -->
+          <div class="plan-day-card">
+            <div class="day-header">
+              <span class="day-title"><span class="day-num">周五</span> · 腿部+肩部</span>
+              <span class="day-duration">⏱ 约50分钟</span>
+            </div>
+            <div class="exercise-item">
+              <span class="check">○</span>
+              <span class="ex-img">🦵</span>
+              <div class="ex-info">
+                <div class="ex-name">深蹲</div>
+                <div class="ex-sets">4组 × 15次 | 休息90s</div>
+              </div>
+            </div>
+            <div class="exercise-item">
+              <span class="check">○</span>
+              <span class="ex-img">🏋️</span>
+              <div class="ex-info">
+                <div class="ex-name">肩推</div>
+                <div class="ex-sets">3组 × 10次 | 休息60s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item">💬<span class="nav-label">教练</span></div>
+          <div class="nav-item active">📋<span class="nav-label">计划</span></div>
+          <div class="nav-item">👤<span class="nav-label">我的</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 3: 动作纠错 ==================== -->
+    <div class="page-section">
+      <div class="page-label">📱 页面3 — 动作纠错页</div>
+      <div class="correction-page">
+        <div class="correction-header"><h2>🩺 动作纠错</h2></div>
+        <div class="correction-content">
+          <div class="upload-area">
+            <div class="icon">📸</div>
+            <div class="text">上传你的训练动作照片<br>AI 教练将为你分析纠错</div>
+            <div class="upload-btns">
+              <button class="upload-btn camera">📸 拍照</button>
+              <button class="upload-btn gallery">🖼️ 从相册选择</button>
+            </div>
+          </div>
+          <!-- Sample correction result -->
+          <div class="correction-result">
+            <div class="overall">📊 整体评价：俯卧撑整体不错，但有一个关键问题需要调整</div>
+            <div class="issue-card">
+              <div class="body-part">🔴 腰部 · 严重</div>
+              <div class="problem">问题：塌腰，核心未收紧，骨盆前倾</div>
+              <div class="advice">✅ 纠正：收紧腹部和臀部，身体成一条直线，想象肚脐向脊柱靠拢</div>
+            </div>
+            <div class="issue-card">
+              <div class="body-part">🟡 肘部 · 中度</div>
+              <div class="problem">问题：手肘外展角度过大</div>
+              <div class="advice">✅ 纠正：手肘与身体保持45°夹角，避免90°外展</div>
+            </div>
+            <div class="safety-note">⚠️ <b>安全提示：</b>如有手腕/肩部持续疼痛，建议停止训练并就医检查</div>
+          </div>
+          <div class="history-list" style="margin-top:14px">
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px">📋 历史纠错记录</div>
+            <div class="history-item"><span>🏋️ 深蹲纠错</span><span style="color:var(--gray-text)">11月7日</span></div>
+            <div class="history-item"><span>🏋️ 平板支撑纠错</span><span style="color:var(--gray-text)">11月5日</span></div>
+            <div class="history-item"><span>🏋️ 弓步蹲纠错</span><span style="color:var(--gray-text)">11月3日</span></div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item active">💬<span class="nav-label">教练</span></div>
+          <div class="nav-item">📋<span class="nav-label">计划</span></div>
+          <div class="nav-item">👤<span class="nav-label">我的</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 4: 个人中心 ==================== -->
+    <div class="page-section">
+      <div class="page-label">📱 页面4 — 个人中心</div>
+      <div class="profile-page">
+        <div class="profile-card">
+          <div class="profile-avatar">🏃</div>
+          <div class="profile-name">健身小明</div>
+          <div class="profile-level">初级 · 减脂增肌 · 哑铃/自重</div>
+          <button class="edit-profile-btn">✏️ 编辑资料</button>
+        </div>
+        <div class="stats-section">
+          <div class="stats-grid">
+            <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">本周训练天数</div></div>
+            <div class="stat-item"><div class="stat-num">28</div><div class="stat-label">累计训练次数</div></div>
+            <div class="stat-item"><div class="stat-num">21h</div><div class="stat-label">总训练时长</div></div>
+            <div class="stat-item"><div class="stat-num">320</div><div class="stat-label">累计消耗(kcal)</div></div>
+          </div>
+          <div class="ring-chart">
+            <div class="label">📊 本周计划完成率</div>
+            <div class="ring">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#eee" stroke-width="8"/>
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#FF6B35" stroke-width="8"
+                  stroke-dasharray="264" stroke-dashoffset="92" stroke-linecap="round"/>
+              </svg>
+              <div class="ring-text">65%</div>
+            </div>
+          </div>
+          <div class="info-list">
+            <div class="info-item"><span>📋 我的纠错记录</span><span class="arrow">›</span></div>
+            <div class="info-item"><span>⚙️ 设置</span><span class="arrow">›</span></div>
+            <div class="info-item"><span>ℹ️ 关于 FitPulse</span><span class="arrow">›</span></div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item">💬<span class="nav-label">教练</span></div>
+          <div class="nav-item">📋<span class="nav-label">计划</span></div>
+          <div class="nav-item active">👤<span class="nav-label">我的</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 5: 后台-知识库管理 ==================== -->
+    <div class="page-section">
+      <div class="page-label">🖥️ 页面5 — 后台管理 · 知识库管理</div>
+      <div style="background:#f0f2f5">
+        <div class="admin-header"><span class="back">←</span> 知识库管理</div>
+        <div class="admin-content">
+          <div class="admin-card">
+            <div class="card-title">
+              <span>📚 标准动作知识库</span>
+              <span class="add-btn">+ 新增条目</span>
+            </div>
+            <table class="knowledge-table">
+              <tr><th>动作名称</th><th>模块</th><th>目标肌群</th><th>操作</th></tr>
+              <tr><td>深蹲</td><td><span class="module-tag action">标准动作</span></td><td>股四头肌、臀大肌</td><td><span class="action">编辑</span> <span style="color:red">删除</span></td></tr>
+              <tr><td>俯卧撑</td><td><span class="module-tag action">标准动作</span></td><td>胸大肌、三角肌前束</td><td><span class="action">编辑</span> <span style="color:red">删除</span></td></tr>
+              <tr><td>深蹲-膝内扣</td><td><span class="module-tag error">错误姿势</span></td><td>膝关节</td><td><span class="action">编辑</span> <span style="color:red">删除</span></td></tr>
+              <tr><td>俯卧撑-塌腰</td><td><span class="module-tag error">错误姿势</span></td><td>核心</td><td><span class="action">编辑</span> <span style="color:red">删除</span></td></tr>
+              <tr><td>深蹲发力分析</td><td><span class="module-tag muscle">肌肉发力</span></td><td>下肢肌群</td><td><span class="action">编辑</span> <span style="color:red">删除</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 6: 后台-用户管理 ==================== -->
+    <div class="page-section">
+      <div class="page-label">🖥️ 页面6 — 后台管理 · 用户管理</div>
+      <div style="background:#f0f2f5">
+        <div class="admin-header"><span class="back">←</span> 用户管理</div>
+        <div class="admin-content">
+          <div class="stat-bar">
+            <div class="stat-box"><div class="num">1,284</div><div class="lbl">总用户数</div></div>
+            <div class="stat-box"><div class="num">89</div><div class="lbl">今日活跃</div></div>
+            <div class="stat-box"><div class="num">32</div><div class="lbl">本周新增</div></div>
+          </div>
+          <div class="admin-card">
+            <table class="user-table">
+              <tr><th>用户ID</th><th>昵称</th><th>注册时间</th><th>训练天数</th><th>状态</th></tr>
+              <tr><td>U001</td><td>健身小明</td><td>2026-10-15</td><td>24天</td><td><span class="status-dot online"></span>在线</td></tr>
+              <tr><td>U002</td><td>运动达人</td><td>2026-10-18</td><td>18天</td><td>离线</td></tr>
+              <tr><td>U003</td><td>减脂小王</td><td>2026-10-20</td><td>15天</td><td><span class="status-dot online"></span>在线</td></tr>
+              <tr><td>U004</td><td>增肌小李</td><td>2026-11-01</td><td>7天</td><td>离线</td></tr>
+              <tr><td>U005</td><td>塑形小张</td><td>2026-11-03</td><td>5天</td><td>离线</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE 7: 后台-系统概览 ==================== -->
+    <div class="page-section">
+      <div class="page-label">🖥️ 页面7 — 后台管理 · 系统概览仪表盘</div>
+      <div style="background:#f0f2f5">
+        <div class="admin-header"><span class="back">←</span> 系统概览</div>
+        <div class="admin-content">
+          <div class="dashboard-grid">
+            <div class="dash-stat"><div class="dash-num">1,284</div><div class="dash-lbl">总用户数</div></div>
+            <div class="dash-stat"><div class="dash-num">89</div><div class="dash-lbl">今日活跃用户</div></div>
+            <div class="dash-stat"><div class="dash-num">156</div><div class="dash-lbl">本周纠错次数</div></div>
+            <div class="dash-stat"><div class="dash-num">48</div><div class="dash-lbl">知识库条目数</div></div>
+          </div>
+          <div class="chart-placeholder">
+            <div class="chart-title">📈 API 调用量趋势（近7天）</div>
+            <div class="chart-bars">
+              <div class="chart-bar" style="height:60px"></div>
+              <div class="chart-bar" style="height:80px"></div>
+              <div class="chart-bar" style="height:45px"></div>
+              <div class="chart-bar" style="height:95px"></div>
+              <div class="chart-bar" style="height:70px"></div>
+              <div class="chart-bar" style="height:100px"></div>
+              <div class="chart-bar" style="height:55px"></div>
+            </div>
+            <div class="chart-labels"><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span></div>
+          </div>
+          <div class="admin-card">
+            <div class="card-title">📋 用户反馈</div>
+            <table class="knowledge-table">
+              <tr><th>反馈ID</th><th>用户</th><th>内容</th><th>状态</th><th>操作</th></tr>
+              <tr><td>FB001</td><td>健身小明</td><td>希望增加瑜伽动作</td><td><span style="color:orange">处理中</span></td><td><span class="action">标记完成</span></td></tr>
+              <tr><td>FB002</td><td>运动达人</td><td>纠错分析很准确！</td><td><span style="color:var(--green)">已解决</span></td><td>-</td></tr>
+              <tr><td>FB003</td><td>减脂小王</td><td>计划生成有点慢</td><td><span style="color:red">待处理</span></td><td><span class="action">处理</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end phone -->
+
+</body>
+</html>
